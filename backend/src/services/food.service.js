@@ -18,7 +18,7 @@ const foods = [
     name:"Beef Lasagna",
     description:"Layers of pasta, beef, ricotta cheese, and marinara sauce.",
     price: 14.99,
-    available: false
+    available:true
   }
 ];
 
