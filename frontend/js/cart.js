@@ -21,7 +21,7 @@ function renderCart() {
     const itemTotal = food.price * item.quantity;
     return `
       <div class="cart-item">
-        <img src="${food.image}" alt="${food.name}">
+        <img src="${food.image || "img/placeholder.jpg"}" alt="${food.name}">
         <div>
           <h3>${food.name}</h3>
           <span class="muted">${money(food.price)} each</span>
@@ -67,4 +67,7 @@ function renderCart() {
   });
 }
 
-document.addEventListener("DOMContentLoaded", renderCart);
+document.addEventListener("DOMContentLoaded", async () => {
+  await loadFoods();
+  renderCart();
+});

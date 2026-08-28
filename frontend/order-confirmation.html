@@ -13,10 +13,10 @@
     <a class="logo" href="home.html">Quick<span>Bite</span></a>
     <button class="menu-toggle" aria-label="Open navigation">☰</button>
     <nav class="nav-links">
-      <a class="" href="home.html">Home</a>
-      <a class="" href="menu.html">Menu</a>
+      <a href="home.html">Home</a>
+      <a href="menu.html">Menu</a>
       <a class="cart-link" href="cart.html">Cart <span class="cart-count">0</span></a>
-      <a class="" href="login.html">Login</a>
+      <a href="login.html">Login</a>
     </nav>
   </div>
 </header>
@@ -27,7 +27,36 @@
       <div class="check">✓</div>
       <span class="eyebrow">Thank You</span>
       <h1>Order Confirmed!</h1>
-      <p class="muted">Your order has been received.Thank you for choosing QuickBite!</p>
+      <p class="muted">Your order has been received. Thank you for choosing QuickBite!</p>
+
+      <!-- Order summary filled by JS from localStorage -->
+      <div class="panel" style="max-width:420px;margin:1.5rem auto;text-align:left;">
+        <div class="summary-row">
+          <span>Order ID</span>
+          <strong id="conf-id">—</strong>
+        </div>
+        <div class="summary-row">
+          <span>Name</span>
+          <strong id="conf-name">—</strong>
+        </div>
+        <div class="summary-row">
+          <span>Phone</span>
+          <strong id="conf-phone">—</strong>
+        </div>
+        <div class="summary-row">
+          <span>Delivery Address</span>
+          <strong id="conf-address">—</strong>
+        </div>
+        <div class="summary-row summary-total">
+          <span>Total</span>
+          <strong id="conf-total">—</strong>
+        </div>
+        <div class="summary-row">
+          <span>Status</span>
+          <strong id="conf-status">—</strong>
+        </div>
+      </div>
+
       <a class="btn btn-primary" href="menu.html">Order Something Else</a>
       <a class="btn btn-outline" href="home.html">Back Home</a>
     </section>
@@ -41,6 +70,29 @@
     <small>© 2026 QuickBite</small>
   </div>
 </footer>
+
 <script src="js/app.js"></script>
+<script>
+  // Populate the confirmation panel from the order saved by checkout.js.
+  (function () {
+    const raw = localStorage.getItem("quickbiteLastOrder");
+    if (!raw) return;
+
+    try {
+      const order = JSON.parse(raw);
+
+      document.querySelector("#conf-id").textContent      = order.id      ?? "—";
+      document.querySelector("#conf-name").textContent    = order.customer_name    ?? "—";
+      document.querySelector("#conf-phone").textContent   = order.phone   ?? "—";
+      document.querySelector("#conf-address").textContent = order.delivery_address ?? "—";
+      document.querySelector("#conf-total").textContent   = order.total != null
+        ? Number(order.total).toFixed(2) + " ETB"
+        : "—";
+      document.querySelector("#conf-status").textContent  = order.status  ?? "—";
+    } catch (e) {
+      console.error("Could not parse last order:", e);
+    }
+  })();
+</script>
 </body>
 </html>
