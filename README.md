@@ -1,58 +1,60 @@
 # QuickBite
 
-A restaurant food-ordering web application.
+QuickBite is a food ordering web application built as a full-stack learning project.
+
+Users can browse foods, add items to a cart, and place orders. The backend provides REST APIs and stores orders in PostgreSQL.
 
 ## Technologies
 
+* HTML, CSS, JavaScript
 * Node.js
 * Express.js
 * PostgreSQL
-* React
-* JavaScript
+* Git & GitHub
+* Postman
 
 ## Features
 
-* Browse food
-* Add items to cart
-* Adjust quantities
-* Place orders
-* View orders
+* Browse available foods
+* View food details
+* Add and remove items from the cart
+* Increase and decrease quantities
+* Checkout and place orders
+* Store orders in PostgreSQL
+* Retrieve orders through the API
 
-## API Endpoints
+## Backend
 
-| Method | Endpoint          | Description        |
-| ------ | ----------------- | ------------------ |
-| GET    | `/api/foods`      | Get all foods      |
-| GET    | `/api/foods/:id`  | Get a food by ID   |
-| POST   | `/api/orders`     | Create an order    |
-| GET    | `/api/orders/:id` | Get an order by ID |
+The backend uses a simple structure:
+
+```text
+Routes → Controllers → Services → PostgreSQL
+```
+
+Main API endpoints:
+
+```text
+GET  /api/foods
+POST /api/orders
+GET  /api/orders/:id
+```
 
 ## Database
 
-PostgreSQL database with:
+QuickBite uses PostgreSQL with three main tables:
 
-* `foods`
-* `orders`
-* `order_items`
+* `foods` — stores food information
+* `orders` — stores placed orders
+* `order_items` — stores the foods and quantities belonging to each order
 
-## Setup
+## Running the Project
 
-### Install dependencies
+### Backend
 
 ```bash
 cd backend
 npm install
-```
-
-### Environment variables
-
-Create a `.env` file in the `backend` directory:
-
-
-### Start the backend
-
-```bash
-npm start
+node src/app.js
 ```
 
 The server runs on:
@@ -61,11 +63,27 @@ The server runs on:
 http://localhost:3000
 ```
 
-## Project Structure
+Make sure PostgreSQL is running and the database connection is configured in `.env`.
 
-```text
-QuickBite/
-├── backend/
-├── frontend/
-└── docs/
-```
+### Frontend
+
+Open the frontend files in a browser or run them using a local development server.
+
+## Project Status
+
+Currently implemented:
+
+* Frontend and backend integration
+* PostgreSQL integration
+* Food API
+* Cart functionality
+* Order creation and retrieval
+* Order persistence
+
+Planned:
+
+* Authentication
+* Authorization
+* Order cancellation
+* Order status management
+* Ethiopian traditional food dataset
