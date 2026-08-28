@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QuickBite | Food Details</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="container nav">
+    <a class="logo" href="home.html">Quick<span>Bite</span></a>
+    <button class="menu-toggle" aria-label="Open navigation">☰</button>
+    <nav class="nav-links">
+      <a class="" href="home.html">Home</a>
+      <a class="" href="menu.html">Menu</a>
+      <a class="cart-link" href="cart.html">Cart <span class="cart-count">0</span></a>
+      <a class="" href="login.html">Login</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="container details">
+    <div>
+      <img id="food-image" class="details-image" src="" alt="">
+    </div>
+    <div>
+      <span class="eyebrow">Food Details</span>
+      <h1 id="food-name"></h1>
+      <p id="food-description" class="muted"></p>
+      <div id="food-price" class="price"></div>
+      <div class="quantity">
+        <button id="minus" aria-label="Decrease quantity">−</button>
+        <span id="quantity">1</span>
+        <button id="plus" aria-label="Increase quantity">+</button>
+      </div>
+      <br>
+      <button id="add-detail" class="btn btn-primary">Add to Cart</button>
+      <div class="allergy">
+        <strong>Allergy Information</strong><br>
+        Allergy information not specified. Please contact the restaurant for detailed allergen information.
+      </div>
+    </div>
+  </div>
+</main>
+<script src="js/food-details.js"></script>
+
+<footer class="site-footer">
+  <div class="container footer-content">
+    <a class="logo" href="home.html">Quick<span>Bite</span></a>
+    <p>Authentic Ethiopian flavors, made for every bite.</p>
+    <small>© 2026 QuickBite</small>
+  </div>
+</footer>
+<script src="js/app.js"></script>
+</body>
+</html>
