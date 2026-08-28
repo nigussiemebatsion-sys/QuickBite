@@ -1,113 +1,57 @@
 # QuickBite
 
-QuickBite is a restaurant ordering application that allows customers to browse food and place orders through a REST API.
+A restaurant food-ordering web application.
 
-## Project Status
+## Technologies
 
-Currently in development.
+* Node.js
+* Express.js
+* PostgreSQL
+* React
+* JavaScript
 
-### Completed
+## Features
 
-* Restaurant frontend
-* Express.js backend
-* Food service
-* Order service
-* Create Order API
-* Get Order by ID API
-* Order validation
-* Price calculation
-* Git and GitHub setup
+* Browse food
+* Add items to cart
+* Adjust quantities
+* Place orders
+* View orders
 
-### Next
+## API Endpoints
 
-* PostgreSQL integration
-* Replace in-memory data with database storage
-* Connect frontend with backend
-* Testing
-* Deployment
+| Method | Endpoint          | Description        |
+| ------ | ----------------- | ------------------ |
+| GET    | `/api/foods`      | Get all foods      |
+| GET    | `/api/foods/:id`  | Get a food by ID   |
+| POST   | `/api/orders`     | Create an order    |
+| GET    | `/api/orders/:id` | Get an order by ID |
 
-## Tech Stack
+## Database
 
-* **Frontend:** HTML, CSS, JavaScript
-* **Backend:** Node.js, Express.js
-* **Database:** PostgreSQL
-* **Testing:** Postman
-* **Version Control:** Git, GitHub
+PostgreSQL database with:
 
-## Project Structure
+* `foods`
+* `orders`
+* `order_items`
 
-```text
-QuickBite/
-├── backend/
-├── frontend/
-├── docs/
-├── img/
-├── index.html
-├── project.css
-├── README.md
-└── .gitignore
-```
+## Setup
 
-## API
-
-### Create Order
-
-```http
-POST /api/orders
-```
-
-Example request:
-
-```json
-{
-  "items": [
-    {
-      "foodId": 1,
-      "quantity": 2
-    },
-    {
-      "foodId": 2,
-      "quantity": 1
-    }
-  ]
-}
-```
-
-### Get Order
-
-```http
-GET /api/orders/:id
-```
-
-Example:
-
-```http
-GET /api/orders/1
-```
-
-## Backend Architecture
-
-```text
-Request
-   ↓
-Route
-   ↓
-Controller
-   ↓
-Service
-   ↓
-Database
-```
-
-The current development version uses in-memory data. PostgreSQL will be integrated in the next stage.
-
-## Development
-
-Start the backend:
+### Install dependencies
 
 ```bash
 cd backend
 npm install
+```
+
+### Environment variables
+
+Create a `.env` file in the `backend` directory:
+
+
+### Start the backend
+
+```bash
 npm start
 ```
 
@@ -117,10 +61,11 @@ The server runs on:
 http://localhost:3000
 ```
 
-## Roadmap
+## Project Structure
 
-1. Complete backend APIs
-2. Integrate PostgreSQL
-3. Connect frontend and backend
-4. Test the complete ordering flow
-5. Deploy the application
+```text
+QuickBite/
+├── backend/
+├── frontend/
+└── docs/
+```
