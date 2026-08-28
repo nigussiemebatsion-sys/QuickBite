@@ -1,11 +1,42 @@
 const orderService = require("../services/order.service");
-const foodService = require("../services/food.service");
+const foodService  = require("../services/food.service");
 
 async function createOrder(req, res) {
     try {
         console.log("REQUEST BODY:", req.body);
 
-        const items = req.body.items;
+        const { customer_name, phone, delivery_address, items } = req.body;
+
+        // ── Validate customer fields ──────────────────────────────────────
+        if (!customer_name || !customer_name.trim()) {
+            return res.status(400).json({
+                status: "Error",
+                message: "Customer name is required"
+            });
+        }
+
+        if (!phone || !phone.trim()) {
+            return res.status(400).json({
+                status: "Error",
+                message: "Phone number is required"
+            });
+        }
+
+        if (!/^\d+$/.test(phone.trim())) {
+            return res.status(400).json({
+                status: "Error",
+                message: "Phone number must contain digits only"
+            });
+        }
+
+        if (!delivery_address || !delivery_address.trim()) {
+            return res.status(400).json({
+                status: "Error",
+                message: "Delivery address is required"
+            });
+        }
+
+        // ── Validate items ────────────────────────────────────────────────
         if (!Array.isArray(items) || items.length === 0) {
             return res.status(400).json({
                 status: "Error",
@@ -13,10 +44,18 @@ async function createOrder(req, res) {
             });
         }
 
-        const result = await orderService.createOrder(items, foodService);
+        // ── Delegate to service ───────────────────────────────────────────
+        const customerInfo = {
+            customer_name:    customer_name.trim(),
+            phone:            phone.trim(),
+            delivery_address: delivery_address.trim()
+        };
+
+        const result = await orderService.createOrder(customerInfo, items, foodService);
 
         if (result.error) {
             return res.status(400).json({
+                status: "Error",
                 message: result.error
             });
         }
@@ -25,6 +64,7 @@ async function createOrder(req, res) {
             status: "Success",
             data: result.order
         });
+
     } catch (err) {
         console.error("createOrder error:", err);
         return res.status(500).json({
@@ -50,6 +90,7 @@ async function getOrderById(req, res) {
             status: "Success",
             data: order
         });
+
     } catch (err) {
         console.error("getOrderById error:", err);
         return res.status(500).json({
