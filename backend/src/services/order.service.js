@@ -1,155 +1,157 @@
-const orders = [];
+const pool = require("../config/db");
 
-// Creates a new order from the items sent by the customer.
+// Creates a new order and persists it to PostgreSQL.
+//
+// Uses a transaction so that if inserting any order_item fails,
+// the entire order is rolled back and nothing is left in the database.
 //
 // Parameters:
-// - items: the list of foods the customer wants to order.
-//          Example: [{ foodId: 1, quantity: 2 }]
-//
-// - foodService: the food service object.
-//                We receive it so we can use functions such as
-//                foodService.getFoodById() to find the actual food.
+// - items: array of { foodId, quantity } objects sent by the customer
+// - foodService: used to validate foods and retrieve their current prices
 
-function createOrder(items, foodService) {
+async function createOrder(items, foodService) {
 
-    // Stores the complete information about each food item
-    // in the customer's order.
+    // ── 1. Validate all items and build the order data ──────────────────────
+    // We do this BEFORE opening a transaction so we don't hold a DB client
+    // open during validation logic.
+
     let orderItems = [];
-
-    // Stores the total price of the entire order.
     let total = 0;
-
-    // Go through each item sent by the customer.
-    //
-    // "items" = the whole array
-    // "item"  = one object from that array
-    //
-    // Example:
-    // items = [
-    //   { foodId: 1, quantity: 2 },
-    //   { foodId: 2, quantity: 1 }
-    // ]
-    //
-    // First loop:
-    // item = { foodId: 1, quantity: 2 }
-    //
-    // Second loop:
-    // item = { foodId: 2, quantity: 1 }
 
     for (const item of items) {
 
-        // Make sure the quantity is a positive whole number.
+        // Quantity must be a positive integer.
         if (!Number.isInteger(item.quantity) || item.quantity <= 0) {
-            return {
-                error: "Quantity must be a positive number"
-            };
+            return { error: "Quantity must be a positive number" };
         }
 
-        // item.foodId gets the food ID sent by the customer.
-        //
-        // Example:
-        // item.foodId = 2
-        //
-        // We pass 2 to getFoodById().
-        //
-        // getFoodById(2) searches the foods array and returns
-        // the actual food object whose id is 2.
-        const food = foodService.getFoodById(item.foodId);
+        // Look up the food in the database.
+        const food = await foodService.getFoodById(item.foodId);
 
-        // If getFoodById() could not find the food,
-        // it returns undefined.
-        //
-        // We stop creating the order and return an error.
         if (!food) {
-            return {
-                error: `Food with ID ${item.foodId} not found`
-            };
+            return { error: `Food with ID ${item.foodId} not found` };
         }
 
-        // Make sure the customer cannot order a food
-        // that is currently unavailable.
         if (!food.available) {
-            return {
-                error: `${food.name} is currently unavailable`
-            };
+            return { error: `${food.name} is currently unavailable` };
         }
 
-        // Calculate the price for this particular food.
-        //
-        // toFixed(2) rounds the value to 2 decimal places.
-        // Number() converts the result back into a number.
-        const itemTotal = Number(
-            (food.price * item.quantity).toFixed(2)
-        );
+        const itemTotal = Number((food.price * item.quantity).toFixed(2));
 
-        // Add the processed food information to the order.
-        //
-        // We use the price from our food data instead of
-        // trusting a price sent by the customer.
         orderItems.push({
             foodId: food.id,
             name: food.name,
             quantity: item.quantity,
-            price: food.price,
+            price: food.price,       // price from DB, never from the client
             subtotal: itemTotal
         });
 
-        // Add this item's subtotal to the total order price.
         total += itemTotal;
     }
 
-    // Round the final order total to 2 decimal places.
     total = Number(total.toFixed(2));
 
-    // Create the complete order object.
-    const order = {
+    // ── 2. Persist inside a transaction ────────────────────────────────────
+    // Acquire a dedicated client from the pool so we can issue BEGIN/COMMIT.
 
-        // Generate a simple ID using the current number of orders.
-        // NOTE: This is only suitable for our temporary
-        // in-memory version. A database will generate IDs later.
-        id: orders.length + 1,
+    const client = await pool.connect();
 
-        // Complete processed items in this order.
-        items: orderItems,
+    try {
+        await client.query("BEGIN");
 
-        // Total price of all items.
-        total: total,
+        // Insert the order row and return the generated id and created_at.
+        const orderResult = await client.query(
+            `INSERT INTO orders (total, status)
+             VALUES ($1, $2)
+             RETURNING id, total, status, created_at`,
+            [total, "pending"]
+        );
 
-        // Every new order starts with "pending" status.
-        status: "pending"
-    };
+        const newOrder = orderResult.rows[0];
 
-    // Save the order in the temporary orders array.
-    orders.push(order);
+        // Insert each order item, now that we have the real order ID.
+        for (const item of orderItems) {
+            await client.query(
+                `INSERT INTO order_items (order_id, food_id, quantity, price)
+                 VALUES ($1, $2, $3, $4)`,
+                [newOrder.id, item.foodId, item.quantity, item.price]
+            );
+        }
 
-    // Return the newly created order to the controller.
+        await client.query("COMMIT");
+
+        // Return the complete order object to the controller.
+        return {
+            order: {
+                id: newOrder.id,
+                total: Number(newOrder.total),
+                status: newOrder.status,
+                created_at: newOrder.created_at,
+                items: orderItems
+            }
+        };
+
+    } catch (err) {
+        // Roll back the entire transaction if anything went wrong.
+        await client.query("ROLLBACK");
+        throw err;   // Re-throw so the controller catches it and returns 500.
+    } finally {
+        // Always release the client back to the pool.
+        client.release();
+    }
+}
+
+
+// Retrieves an order by its ID, including all associated order items
+// with food names joined from the foods table.
+
+async function getOrderById(id) {
+
+    // Fetch the order row.
+    const orderResult = await pool.query(
+        `SELECT id, total, status, created_at
+         FROM orders
+         WHERE id = $1`,
+        [id]
+    );
+
+    if (orderResult.rows.length === 0) {
+        return null;
+    }
+
+    const order = orderResult.rows[0];
+
+    // Fetch the order items, joining foods to get the food name.
+    const itemsResult = await pool.query(
+        `SELECT
+             oi.id,
+             oi.food_id   AS "foodId",
+             f.name,
+             oi.quantity,
+             oi.price,
+             CAST(oi.price * oi.quantity AS NUMERIC(10,2)) AS subtotal
+         FROM order_items oi
+         JOIN foods f ON f.id = oi.food_id
+         WHERE oi.order_id = $1
+         ORDER BY oi.id`,
+        [id]
+    );
+
     return {
-        order
+        id: order.id,
+        total: Number(order.total),
+        status: order.status,
+        created_at: order.created_at,
+        items: itemsResult.rows.map(row => ({
+            foodId: row.foodId,
+            name: row.name,
+            quantity: row.quantity,
+            price: Number(row.price),
+            subtotal: Number(row.subtotal)
+        }))
     };
 }
 
-
-// Finds an existing order using its ID.
-//
-// GET /api/orders/2
-//
-// The controller gets id = 2 and calls:
-// orderService.getOrderById(2)
-//
-// .find() checks each order until it finds
-// an order whose ID matches the requested ID.
-
-function getOrderById(id) {
-    return orders.find(order => order.id === id);
-}
-
-
-// Export these functions so the controller can use them.
-//
-// The controller can now do:
-//
-// orderService.createOrder(...)
-// orderService.getOrderById(...)
 
 module.exports = {
     createOrder,

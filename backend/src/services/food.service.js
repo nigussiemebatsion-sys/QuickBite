@@ -1,36 +1,23 @@
-const foods = [
-  {
-    id:1,
-    name:"Margherita Pizza",
-    description:"Classic pizza with tomato sauce, mozzarella cheese, and fresh basil.",
-    price: 12.99,
-    available: true
-  },
-  {
-    id:2,
-    name:"Burger",
-    description:"Juicy beef patty with lettuce, tomato, cheese, and special sauce.",
-    price: 9.99,
-    available: true
-  },
-  {
-    id:3,
-    name:"Beef Lasagna",
-    description:"Layers of pasta, beef, ricotta cheese, and marinara sauce.",
-    price: 14.99,
-    available:true
-  }
-];
+const pool = require("../config/db");
 
-function getAllFoods(){
-  return foods;
+async function getAllFoods() {
+    const result = await pool.query(
+        "SELECT * FROM foods ORDER BY id"
+    );
+
+    return result.rows;
 }
 
-function getFoodById(id){
-  return foods.find(food =>food.id ===id);
+async function getFoodById(id) {
+    const result = await pool.query(
+        "SELECT * FROM foods WHERE id = $1",
+        [id]
+    );
+
+    return result.rows[0];
 }
 
 module.exports = {
-  getAllFoods,
-  getFoodById
+    getAllFoods,
+    getFoodById
 };
