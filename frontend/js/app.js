@@ -1,3 +1,13 @@
+// ─────────────────────────────────────────────────────────────
+// API BASE URL
+// Change this single value when deploying to production.
+// Example: "https://quickbite-api.onrender.com"
+// ─────────────────────────────────────────────────────────────
+const API_BASE = "http://localhost:3000";
+
+// ─────────────────────────────────────────────────────────────
+// Food state
+// ─────────────────────────────────────────────────────────────
 let foods = [];
 let foodsRequest = null;
 
@@ -8,7 +18,7 @@ async function loadFoods() {
 
   foodsRequest = (async () => {
     try {
-      const response = await fetch("http://localhost:3000/api/foods");
+      const response = await fetch(`${API_BASE}/api/foods`);
 
       if (!response.ok) {
         throw new Error("Failed to load foods");
@@ -27,6 +37,9 @@ async function loadFoods() {
   return foodsRequest;
 }
 
+// ─────────────────────────────────────────────────────────────
+// Cart helpers
+// ─────────────────────────────────────────────────────────────
 function getCart() {
   return JSON.parse(localStorage.getItem("quickbiteCart")) || [];
 }
@@ -45,55 +58,45 @@ function addToCart(id, quantity = 1) {
   }
 
   const cart = getCart();
-
   const existing = cart.find(item => item.id === food.id);
 
   if (existing) {
     existing.quantity += quantity;
   } else {
-    cart.push({
-      id: food.id,
-      quantity: quantity
-    });
+    cart.push({ id: food.id, quantity });
   }
 
   saveCart(cart);
 }
 
 function updateCartCount() {
-  const count = getCart().reduce(
-    (total, item) => total + item.quantity,
-    0
-  );
-
-  document.querySelectorAll(".cart-count").forEach(
-    element => {
-      element.textContent = count;
-    }
-  );
+  const count = getCart().reduce((total, item) => total + item.quantity, 0);
+  document.querySelectorAll(".cart-count").forEach(el => {
+    el.textContent = count;
+  });
 }
 
+// ─────────────────────────────────────────────────────────────
+// Utility helpers
+// ─────────────────────────────────────────────────────────────
 function money(value) {
   return `${Number(value).toFixed(2)} ETB`;
 }
 
 function foodById(id) {
-  return foods.find(
-    food => food.id === Number(id)
-  );
+  return foods.find(food => food.id === Number(id));
 }
 
+// ─────────────────────────────────────────────────────────────
+// Init
+// ─────────────────────────────────────────────────────────────
 document.addEventListener("DOMContentLoaded", async () => {
   await loadFoods();
-
   updateCartCount();
 
   const toggle = document.querySelector(".menu-toggle");
-  const links = document.querySelector(".nav-links");
-
+  const links  = document.querySelector(".nav-links");
   if (toggle && links) {
-    toggle.addEventListener("click", () => {
-      links.classList.toggle("open");
-    });
+    toggle.addEventListener("click", () => links.classList.toggle("open"));
   }
 });

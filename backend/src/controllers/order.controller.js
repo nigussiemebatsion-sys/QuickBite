@@ -3,8 +3,6 @@ const foodService  = require("../services/food.service");
 
 async function createOrder(req, res) {
     try {
-        console.log("REQUEST BODY:", req.body);
-
         const { customer_name, phone, delivery_address, items } = req.body;
 
         // ── Validate customer fields ──────────────────────────────────────

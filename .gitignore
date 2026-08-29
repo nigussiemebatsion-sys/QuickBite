@@ -1,17 +1,30 @@
-# Dependencies
+# ─── Dependencies ────────────────────────────────────────────
 node_modules/
 
-# Environment variables
+# ─── Environment variables (NEVER commit these) ──────────────
 .env
-.env.*
+.env.local
+.env.production
+.env.staging
 
-# Logs
+# ─── Logs ────────────────────────────────────────────────────
 *.log
+npm-debug.log*
 
-# IDE
+# ─── IDE / Editor ────────────────────────────────────────────
 .vscode/
 .idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
 
-# OS files
+# ─── OS files ────────────────────────────────────────────────
 .DS_Store
 Thumbs.db
+
+# ─── Temporary / test files ──────────────────────────────────
+*.tmp
+*.bak
+test-*.js
+fix-*.sql
