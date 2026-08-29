@@ -21,5 +21,3 @@ Open `index.html` in a browser, or use VS Code Live Server.
 - `js/food-details.js` — food details
 - `js/cart.js` — cart operations
 - `js/checkout.js` — checkout logic
-
-Food images are loaded from Unsplash URLs, so an internet connection is needed for the images.

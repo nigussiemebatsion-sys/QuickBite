@@ -1,205 +1,133 @@
 # QuickBite
 
-A full-stack food ordering web application featuring authentic Ethiopian cuisine. Users can browse the menu, add items to a cart, and place delivery orders. Orders are persisted in PostgreSQL.
-
-Built as a beginner full-stack learning project.
-
----
-
-## Technologies
-
-| Layer    | Technology                     |
-|----------|--------------------------------|
-| Frontend | HTML, CSS, Vanilla JavaScript  |
-| Backend  | Node.js, Express.js            |
-| Database | PostgreSQL                     |
-| API      | REST                           |
-
----
+QuickBite is a full-stack food ordering web application focused on Ethiopian cuisine. It allows customers to browse available food items, view food details, manage their cart, and place orders with delivery information.
 
 ## Features
 
-- Browse 10 authentic Ethiopian dishes
-- View food details and pricing in ETB
-- Add items to a cart (stored in localStorage)
-- Adjust quantities and remove items
-- Checkout with name, phone, and delivery address
-- Orders persisted in PostgreSQL with full transaction support
-- Order confirmation page with order summary
+* Browse available Ethiopian food
+* View food details and prices
+* Add and remove items from the cart
+* Update item quantities
+* Automatic order total calculation
+* Customer checkout and delivery information
+* Order creation and validation
+* Persistent order storage
+* Retrieve order details through the API
 
----
+## Tech Stack
+
+**Frontend**
+
+* HTML5
+* CSS3
+* JavaScript
+
+**Backend**
+
+* Node.js
+* Express.js
+* REST API
+* PostgreSQL client (`pg`)
+
+**Database**
+
+* PostgreSQL
+* Neon
+
+**Deployment**
+
+* Vercel
+* Render
+
+## Architecture
+
+```text
+Frontend
+   │
+   │ REST API
+   ▼
+Express.js Backend
+   │
+   │ PostgreSQL
+   ▼
+Neon PostgreSQL
+```
 
 ## Project Structure
 
-```
+```text
 QuickBite/
-├── frontend/               # HTML, CSS, JavaScript frontend
-│   ├── css/style.css
-│   ├── img/                # Food images
-│   ├── js/
-│   │   ├── app.js          # Shared: API_BASE, cart helpers, food loader
-│   │   ├── menu.js
-│   │   ├── cart.js
-│   │   ├── checkout.js
-│   │   └── food-details.js
-│   ├── home.html
-│   ├── menu.html
-│   ├── cart.html
-│   ├── checkout.html
-│   ├── food-details.html
-│   └── order-confirmation.html
+├── backend/
+│   └── src/
+│       ├── config/
+│       ├── controllers/
+│       ├── routes/
+│       ├── services/
+│       └── server.js
 │
-├── backend/                # Express REST API
-│   ├── src/
-│   │   ├── app.js          # Express app, CORS, routes
-│   │   ├── server.js       # HTTP server entry point
-│   │   ├── config/db.js    # PostgreSQL pool
-│   │   ├── routes/
-│   │   ├── controllers/
-│   │   └── services/
-│   ├── .env                # Local environment variables (not committed)
-│   ├── .env.example        # Template — copy this to .env
-│   └── package.json
+├── database/
+│   ├── 01_schema.sql
+│   └── 02_seed.sql
 │
-└── database/
-    ├── 01_schema.sql       # Creates all tables
-    └── 02_seed.sql         # Inserts Ethiopian food data
+└── frontend/
+    ├── css/
+    ├── js/
+    ├── img/
+    ├── index.html
+    ├── home.html
+    ├── menu.html
+    ├── food-details.html
+    ├── cart.html
+    ├── checkout.html
+    └── order-confirmation.html
 ```
 
----
+## API
 
-## API Endpoints
+### Foods
 
-| Method | Endpoint           | Description              |
-|--------|--------------------|--------------------------|
-| GET    | /api/health        | API + database status    |
-| GET    | /api/foods         | List all foods           |
-| GET    | /api/foods/:id     | Get a single food        |
-| POST   | /api/orders        | Place a new order        |
-| GET    | /api/orders/:id    | Get an order by ID       |
-
----
-
-## Environment Variables
-
-Copy `backend/.env.example` to `backend/.env` and fill in your values:
-
-```env
-DB_USER=your_database_user
-DB_HOST=your_database_host
-DB_NAME=your_database_name
-DB_PASSWORD=your_database_password
-DB_PORT=5432
-
-PORT=3000
-
-# Set to true when using a hosted PostgreSQL provider (Render, Railway, Supabase, etc.)
-DB_SSL=false
-
-# Your deployed frontend URL — used for CORS in production
-FRONTEND_URL=http://localhost:5500
+```http
+GET /api/foods
 ```
 
-**Never commit `.env` to Git.** It is already listed in `.gitignore`.
+Returns the available food items.
 
----
+### Create Order
 
-## Running Locally
-
-### 1. Start PostgreSQL and create the database
-
-```sql
-CREATE DATABASE quickbite;
+```http
+POST /api/orders
 ```
 
-### 2. Run the database setup scripts
+Creates a new order and stores the associated order items.
 
-```bash
-psql -U postgres -d quickbite -f database/01_schema.sql
-psql -U postgres -d quickbite -f database/02_seed.sql
+### Get Order
+
+```http
+GET /api/orders/:id
 ```
 
-### 3. Configure the backend
+Returns an order and its associated items.
 
-```bash
-cd backend
-cp .env.example .env
-# Edit .env with your local PostgreSQL credentials
-```
+## Database
 
-### 4. Install dependencies and start the backend
+The application uses PostgreSQL to manage:
 
-```bash
-cd backend
-npm install
-npm start
-```
+* Food items
+* Orders
+* Order items
 
-The API runs on `http://localhost:3000`.
+Orders and their items are stored using a database transaction to maintain data consistency.
 
-### 5. Open the frontend
+## Live Application
 
-Open `frontend/index.html` using VS Code Live Server (or any local HTTP server).
+Frontend: https://quickbite-ethiopia.vercel.app/
 
-> Do not open frontend files directly as `file://` URLs — the browser will block the `fetch()` API calls.
+Backend: https://quickbite-backend-74xf.onrender.com/
 
----
+## Purpose
 
-## Changing the API URL
+QuickBite was developed as a practical full-stack project to apply concepts in backend development, REST API design, relational databases, and frontend-backend integration.
 
-All API calls go through a single constant in `frontend/js/app.js`:
+## Author
 
-```js
-const API_BASE = "http://localhost:3000";
-```
-
-When deploying, change this one value to your production backend URL:
-
-```js
-const API_BASE = "https://your-backend.onrender.com";
-```
-
----
-
-## Database Setup
-
-Run the scripts in order:
-
-1. `database/01_schema.sql` — creates `foods`, `orders`, `order_items` tables
-2. `database/02_seed.sql` — inserts the 10 Ethiopian food items
-
-The seed script uses `ON CONFLICT DO NOTHING` so it is safe to re-run.
-
----
-
-## Deployment Architecture
-
-```
-Browser (frontend)
-       ↓  HTTPS
-  Static host (Netlify / GitHub Pages / Render Static)
-       ↓  HTTPS fetch()
-  Express API (Render / Railway / Fly.io)
-       ↓  SSL
-  PostgreSQL (Render / Railway / Supabase / Neon)
-```
-
-### Checklist before deploying
-
-- [ ] Set all environment variables on your hosting provider
-- [ ] Set `DB_SSL=true` if your PostgreSQL provider requires SSL
-- [ ] Set `FRONTEND_URL` to your deployed frontend URL
-- [ ] Update `API_BASE` in `frontend/js/app.js` to your deployed backend URL
-- [ ] Run `01_schema.sql` and `02_seed.sql` on your production database
-- [ ] Test `GET /api/health` on the deployed URL
-
----
-
-## Security Notes
-
-- Database credentials are stored only in environment variables
-- `.env` is excluded from Git via `.gitignore`
-- Phone numbers are validated to digits-only on both frontend and backend
-- Backend calculates order totals from DB prices — the frontend total is display-only
-- All order inserts use PostgreSQL transactions (BEGIN / COMMIT / ROLLBACK)
-- All SQL queries use parameterized statements — no string concatenation
+Mebatsion Nigussie
