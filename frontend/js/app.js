@@ -3,7 +3,7 @@
 // Change this single value when deploying to production.
 // Example: "https://quickbite-api.onrender.com"
 // ─────────────────────────────────────────────────────────────
-const API_BASE = "http://localhost:3000";
+const API_BASE = "https://quickbite-backend-74xf.onrender.com";
 
 // ─────────────────────────────────────────────────────────────
 // Food state
