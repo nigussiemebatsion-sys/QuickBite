@@ -5,7 +5,6 @@ async function createOrder(req, res) {
     try {
         const { customer_name, phone, delivery_address, items } = req.body;
 
-        // ── Validate customer fields ──────────────────────────────────────
         if (!customer_name || !customer_name.trim()) {
             return res.status(400).json({
                 status: "Error",
@@ -34,7 +33,6 @@ async function createOrder(req, res) {
             });
         }
 
-        // ── Validate items ────────────────────────────────────────────────
         if (!Array.isArray(items) || items.length === 0) {
             return res.status(400).json({
                 status: "Error",
@@ -42,7 +40,6 @@ async function createOrder(req, res) {
             });
         }
 
-        // ── Delegate to service ───────────────────────────────────────────
         const customerInfo = {
             customer_name:    customer_name.trim(),
             phone:            phone.trim(),

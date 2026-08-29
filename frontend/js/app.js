@@ -1,13 +1,5 @@
-// ─────────────────────────────────────────────────────────────
-// API BASE URL
-// Change this single value when deploying to production.
-// Example: "https://quickbite-api.onrender.com"
-// ─────────────────────────────────────────────────────────────
 const API_BASE = "https://quickbite-backend-74xf.onrender.com";
 
-// ─────────────────────────────────────────────────────────────
-// Food state
-// ─────────────────────────────────────────────────────────────
 let foods = [];
 let foodsRequest = null;
 
@@ -37,9 +29,6 @@ async function loadFoods() {
   return foodsRequest;
 }
 
-// ─────────────────────────────────────────────────────────────
-// Cart helpers
-// ─────────────────────────────────────────────────────────────
 function getCart() {
   return JSON.parse(localStorage.getItem("quickbiteCart")) || [];
 }
@@ -76,9 +65,6 @@ function updateCartCount() {
   });
 }
 
-// ─────────────────────────────────────────────────────────────
-// Utility helpers
-// ─────────────────────────────────────────────────────────────
 function money(value) {
   return `${Number(value).toFixed(2)} ETB`;
 }
@@ -87,9 +73,6 @@ function foodById(id) {
   return foods.find(food => food.id === Number(id));
 }
 
-// ─────────────────────────────────────────────────────────────
-// Init
-// ─────────────────────────────────────────────────────────────
 document.addEventListener("DOMContentLoaded", async () => {
   await loadFoods();
   updateCartCount();

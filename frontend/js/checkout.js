@@ -8,15 +8,12 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   if (!orderItems || !totalEl || !form) return;
 
-  // Show empty cart message and disable the submit button.
   if (cart.length === 0) {
     orderItems.innerHTML = `<p class="muted">Your cart is empty. <a href="menu.html">Go to the menu.</a></p>`;
     form.querySelector("button[type='submit']").disabled = true;
     return;
   }
 
-  // Display the order summary and total (calculated from local food data for display only).
-  // The backend will recalculate the authoritative total from its own prices.
   const displayTotal = cart.reduce((sum, item) => {
     const food = foodById(item.id);
     if (!food) return sum;
@@ -34,18 +31,13 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   totalEl.textContent = money(displayTotal);
 
-  // Block non-digit keypresses on the phone field in real time.
   const phoneInput = document.querySelector("#phone");
   phoneInput.addEventListener("keydown", e => {
-    // Allow: backspace, delete, tab, escape, enter, arrow keys, home, end
     const allowed = ["Backspace","Delete","Tab","Escape","Enter","ArrowLeft","ArrowRight","Home","End"];
     if (allowed.includes(e.key)) return;
-    // Allow Ctrl/Cmd shortcuts (copy, paste, select all)
     if ((e.ctrlKey || e.metaKey) && ["a","c","v","x"].includes(e.key.toLowerCase())) return;
-    // Block anything that is not a digit
     if (!/^\d$/.test(e.key)) e.preventDefault();
   });
-  // Also strip non-digits on paste
   phoneInput.addEventListener("paste", e => {
     e.preventDefault();
     const pasted = (e.clipboardData || window.clipboardData).getData("text");
@@ -53,17 +45,13 @@ document.addEventListener("DOMContentLoaded", async () => {
     document.execCommand("insertText", false, digitsOnly);
   });
 
-  // Handle form submission.
   form.addEventListener("submit", async event => {
     event.preventDefault();
 
-    // Read and trim delivery details from the existing input fields.
     const customer_name    = document.querySelector("#customer-name").value.trim();
-    // Strip any non-digit characters from the phone field.
     const phone            = document.querySelector("#phone").value.replace(/\D/g, "");
     const delivery_address = document.querySelector("#address").value.trim();
 
-    // Frontend validation — backend validates again independently.
     if (!customer_name || !delivery_address) {
       alert("Please complete all delivery details.");
       return;
@@ -99,7 +87,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         throw new Error(result?.message || "Order could not be placed.");
       }
 
-      // Save order info for the confirmation page, using the backend's values.
       localStorage.setItem("quickbiteLastOrder", JSON.stringify({
         id:               result.data.id,
         customer_name:    result.data.customer_name,

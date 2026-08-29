@@ -3,10 +3,6 @@ const pool    = require("../config/db");
 
 const router = express.Router();
 
-// GET /api/health
-// Verifies API is running and database is reachable.
-// Runs a real query to confirm connectivity — not just a ping.
-// Safe to expose publicly: never returns passwords or secrets.
 router.get("/", async (req, res) => {
     try {
         const result = await pool.query(

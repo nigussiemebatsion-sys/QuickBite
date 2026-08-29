@@ -1,8 +1,3 @@
-// ─────────────────────────────────────────────────────────────
-// Load environment variables FIRST, before any other require().
-// Uses an explicit path so this works regardless of which
-// directory the process is started from.
-// ─────────────────────────────────────────────────────────────
 require("dotenv").config({
     path: require("path").resolve(__dirname, "../.env")
 });
@@ -12,10 +7,6 @@ const pool = require("./config/db");
 
 const PORT = process.env.PORT || 3000;
 
-// ─────────────────────────────────────────────────────────────
-// Startup DB diagnostic — logs which database we're connected
-// to. Never logs the password or connection string.
-// ─────────────────────────────────────────────────────────────
 async function verifyDatabaseConnection() {
     try {
         const result = await pool.query(
@@ -28,7 +19,6 @@ async function verifyDatabaseConnection() {
     } catch (err) {
         console.error("Database : connection FAILED —", err.message);
         console.error("Check DB_HOST, DB_USER, DB_NAME, DB_PASSWORD, DB_PORT, DB_SSL in .env");
-        // Exit so the process fails fast and shows the problem immediately.
         process.exit(1);
     }
 }

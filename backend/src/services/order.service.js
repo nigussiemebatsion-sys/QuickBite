@@ -1,31 +1,18 @@
 const pool = require("../config/db");
 
-// Creates a new order and persists it to PostgreSQL inside a transaction.
-//
-// Parameters:
-// - customerInfo: { customer_name, phone, delivery_address }
-// - items: array of { foodId, quantity }
-// - foodService: used to validate foods and retrieve their current prices from DB
-
 async function createOrder(customerInfo, items, foodService) {
 
     const { customer_name, phone, delivery_address } = customerInfo;
-
-    // ── 1. Validate all items and calculate totals ──────────────────────────
-    // Done before opening a transaction to avoid holding a client open during
-    // async food lookups.
 
     let orderItems = [];
     let total = 0;
 
     for (const item of items) {
 
-        // Quantity must be a positive integer.
         if (!Number.isInteger(item.quantity) || item.quantity <= 0) {
             return { error: "Quantity must be a positive number" };
         }
 
-        // Look up the food — price comes from DB, never from the client.
         const food = await foodService.getFoodById(item.foodId);
 
         if (!food) {
@@ -51,14 +38,11 @@ async function createOrder(customerInfo, items, foodService) {
 
     total = Number(total.toFixed(2));
 
-    // ── 2. Persist inside a transaction ────────────────────────────────────
-
     const client = await pool.connect();
 
     try {
         await client.query("BEGIN");
 
-        // Insert the order row with customer info and return the generated id.
         const orderResult = await client.query(
             `INSERT INTO orders (customer_name, phone, delivery_address, total, status)
              VALUES ($1, $2, $3, $4, $5)
@@ -68,7 +52,6 @@ async function createOrder(customerInfo, items, foodService) {
 
         const newOrder = orderResult.rows[0];
 
-        // Insert each order item using the DB-generated order ID.
         for (const item of orderItems) {
             await client.query(
                 `INSERT INTO order_items (order_id, food_id, quantity, price)
@@ -100,8 +83,6 @@ async function createOrder(customerInfo, items, foodService) {
     }
 }
 
-
-// Retrieves an order by ID with its items joined from foods.
 
 async function getOrderById(id) {
 
